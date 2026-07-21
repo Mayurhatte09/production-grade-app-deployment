@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: frontend
+  namespace: production-grade-app
+  labels:
+    app: frontend
+
+spec:
+  replicas: 2
+
+  selector:
+    matchLabels:
+      app: frontend
+
+  template:
+    metadata:
+      labels:
+        app: frontend
+
+    spec:
+      containers:
+        - name: frontend
+
+          image: mayrhatte09/production-grade-app-deployment-frontend:v1
+
+          imagePullPolicy: Always
+
+          ports:
+            - containerPort: 4000
+
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
