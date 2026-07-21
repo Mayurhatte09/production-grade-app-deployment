@@ -1,163 +1,135 @@
-const User = require('../models/user.model');
+const User = require("../models/user.model.sequelize");
 
 class UserController {
-  // Create new user
+  // Create User
   static async createUser(req, res) {
     try {
       const { name, email, password, department } = req.body;
 
-      // if (!name || !email || !password || !department) {
-      //   return res.status(400).json({ message: "All fields are required" });
-      // }
+      const existingUser = await User.findOne({
+        where: { email },
+      });
 
-      const existingUser = await User.findOne({ email });
       if (existingUser) {
-        return res.status(400).json({ message: "User already exists" });
+        return res.status(400).json({
+          message: "User already exists",
+        });
       }
 
-      const newUser = new User({ name, email, password, department });
-      await newUser.save();
+      const newUser = await User.create({
+        name,
+        email,
+        password,
+        department,
+      });
 
       res.status(201).json({
         message: "User created successfully",
-        user: newUser
+        user: newUser,
       });
     } catch (error) {
       console.error(error);
-      res.status(500).json({ message: "Internal Server Error" });
+      res.status(500).json({
+        message: "Internal Server Error",
+      });
     }
   }
 
-  // Get all users with pagination
+  // Get All Users
   static async getAllUsers(req, res) {
     try {
-      let { page, limit, search, role, department } = req.query;
-
-      page = parseInt(page) || 1;
-      limit = parseInt(limit) || 5;
-      const skip = (page - 1) * limit;
-
-      // build query object
-      let query = {};
-
-      // ✅ search (on name/email)
-      if (search) {
-        query.$or = [
-          { name: { $regex: search, $options: "i" } }, // case-insensitive
-          { email: { $regex: search, $options: "i" } }
-        ];
-      }
-
-      // ✅ filter by role if provided
-      if (role) {
-        query.role = role;
-      }
-
-      // ✅ filter by department if provided
-      if (department) {
-        query.department = department;
-      }
-
-      const totalItems = await User.countDocuments(query);
-
-      const users = await User.find(query)
-        .skip(skip)
-        .limit(limit)
-        .sort({ _id: 1 });
-
-      // ✅ unique departments list from DB (instead of dummy)
-      const departments = await User.distinct("department");
-
-      res.status(200).json({
-        totalItems,
-        totalPages: Math.ceil(totalItems / limit),
-        currentPage: page,
-        data: users,
-        departments // send in response
+      const users = await User.findAll({
+        order: [["id", "ASC"]],
       });
+
+      res.status(200).json(users);
     } catch (error) {
       console.error(error);
-      res.status(500).json({ message: "Internal Server Error" });
+      res.status(500).json({
+        message: "Internal Server Error",
+      });
     }
   }
 
-  // Get user by ID
+  // Get User By ID
   static async getUserById(req, res) {
     try {
       const { id } = req.params;
-      const user = await User.findById(id);
+
+      const user = await User.findByPk(id);
 
       if (!user) {
-        return res.status(404).json({ message: "User not found" });
+        return res.status(404).json({
+          message: "User not found",
+        });
       }
 
       res.status(200).json(user);
     } catch (error) {
       console.error(error);
-      res.status(500).json({ message: "Internal Server Error" });
-    }
-  }
-
-  static async getUsersByIds(req, res) {
-    try {
-      const { ids } = req.body; // expecting { "ids": ["id1", "id2", "id3"] }
-
-      if (!Array.isArray(ids) || ids.length === 0) {
-        return res.status(400).json({ message: "IDs array is required" });
-      }
-
-      const users = await User.find({ _id: { $in: ids } });
-
-      res.status(200).json({
-        count: users.length,
-        data: users
+      res.status(500).json({
+        message: "Internal Server Error",
       });
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ message: "Internal Server Error" });
     }
   }
 
-  // Update user
+  // Update User
   static async updateUser(req, res) {
     try {
       const { id } = req.params;
+
       const { name, email, password, department } = req.body;
 
-      const updatedUser = await User.findByIdAndUpdate(
-        id,
-        { name, email, password, department },
-        { new: true, runValidators: true }
-      );
+      const user = await User.findByPk(id);
 
-      if (!updatedUser) {
-        return res.status(404).json({ message: "User not found" });
+      if (!user) {
+        return res.status(404).json({
+          message: "User not found",
+        });
       }
+
+      await user.update({
+        name,
+        email,
+        password,
+        department,
+      });
 
       res.status(200).json({
         message: "User updated successfully",
-        user: updatedUser
+        user,
       });
     } catch (error) {
       console.error(error);
-      res.status(500).json({ message: "Internal Server Error" });
+      res.status(500).json({
+        message: "Internal Server Error",
+      });
     }
   }
 
-  // Delete user
+  // Delete User
   static async deleteUser(req, res) {
     try {
       const { id } = req.params;
-      const deletedUser = await User.findByIdAndDelete(id);
 
-      if (!deletedUser) {
-        return res.status(404).json({ message: "User not found" });
+      const user = await User.findByPk(id);
+
+      if (!user) {
+        return res.status(404).json({
+          message: "User not found",
+        });
       }
 
-      res.status(200).json({ message: "User deleted successfully" });
+      await user.destroy();
+
+      res.status(200).json({
+        message: "User deleted successfully",
+      });
     } catch (error) {
       console.error(error);
-      res.status(500).json({ message: "Internal Server Error" });
+      res.status(500).json({
+        message: "Internal Server Error",
+      });
     }
   }
 }

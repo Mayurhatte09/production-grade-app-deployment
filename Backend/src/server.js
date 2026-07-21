@@ -1,22 +1,35 @@
-const express = require('express');
-const app = express();
+const express = require("express");
 const cors = require("cors");
-const connectDB = require('./dbconnect/db');
-const userRoute = require('./routes/user.routes');
-
 require("dotenv").config();
 
-const DATABASE_URL = process.env.DATABASE_URL;
+const { connectDB, sequelize } = require("./config/database");
 
-connectDB(DATABASE_URL);
+const userRoute = require("./routes/user.routes");
+
+const app = express();
 
 app.use(cors());
-app.use(express.json()); // Parses incoming requests with JSON payloads.
+app.use(express.json());
 
-app.use('/api/users', userRoute);
+app.use("/api/users", userRoute);
 
 const PORT = process.env.PORT || 3000;
 
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
+const startServer = async () => {
+  try {
+    await connectDB();
+
+    await sequelize.sync();
+
+    console.log("Database synchronized.");
+
+    app.listen(PORT, () => {
+      console.log(`Server is running on port ${PORT}`);
+    });
+  } catch (error) {
+    console.error(error);
+    process.exit(1);
+  }
+};
+
+startServer();
