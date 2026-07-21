@@ -1,10 +1,9 @@
 apiVersion: apps/v1
 kind: Deployment
+
 metadata:
   name: backend
   namespace: production-grade-app
-  labels:
-    app: backend
 
 spec:
   replicas: 2
@@ -21,9 +20,7 @@ spec:
     spec:
       containers:
         - name: backend
-
-          image: mayrhatte09/production-grade-app-deployment-backend:v1
-
+          image: mayrhatte09/production-grade-app-deployment-backend:v5
           imagePullPolicy: Always
 
           ports:
@@ -32,14 +29,6 @@ spec:
           envFrom:
             - configMapRef:
                 name: backend-config
+
             - secretRef:
                 name: backend-secret
-
-          resources:
-            requests:
-              cpu: "100m"
-              memory: "128Mi"
-
-            limits:
-              cpu: "500m"
-              memory: "512Mi"
