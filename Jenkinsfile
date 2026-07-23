@@ -7,7 +7,7 @@ pipeline {
         BACKEND_IMAGE = "production-grade-app-deployment-backend"
         FRONTEND_IMAGE = "production-grade-app-deployment-frontend"
 
-        TAG = "v9"
+        TAG = "v10"
 
         NAMESPACE = "production-grade-app"
     }
