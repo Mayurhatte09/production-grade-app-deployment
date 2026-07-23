@@ -10,6 +10,7 @@ pipeline {
         TAG = "v10"
 
         NAMESPACE = "production-grade-app"
+        MONITORING_NAMESPACE = "monitoring"
     }
 
     stages {
@@ -66,7 +67,7 @@ pipeline {
             }
         }
 
-        stage('Deploy to Kubernetes') {
+        stage('Deploy App to Kubernetes') {
             steps {
                 bat '''
                 kubectl apply -f kubernetes
@@ -76,13 +77,15 @@ pipeline {
             }
         }
 
-        stage('Verify Deployment') {
+        stage('Deploy Monitoring') {
             steps {
                 bat '''
-                kubectl get pods -n %NAMESPACE%
+                kubectl apply -f monitoring/
                 '''
             }
         }
+
+       
     }
 
     post {
