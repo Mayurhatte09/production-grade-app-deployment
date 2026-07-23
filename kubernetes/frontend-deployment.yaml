@@ -23,7 +23,7 @@ spec:
       containers:
         - name: frontend
 
-          image: mayrhatte09/production-grade-app-deployment-frontend:v9
+          image: mayrhatte09/production-grade-app-deployment-frontend:10
 
           imagePullPolicy: Always
 

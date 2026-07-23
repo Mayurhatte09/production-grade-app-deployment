@@ -20,7 +20,7 @@ spec:
     spec:
       containers:
         - name: backend
-          image: mayrhatte09/production-grade-app-deployment-backend:v9
+          image: mayrhatte09/production-grade-app-deployment-backend:v10
           imagePullPolicy: Always
 
           ports:
