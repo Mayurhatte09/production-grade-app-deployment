@@ -6,7 +6,7 @@ metadata:
   namespace: production-grade-app
 
 spec:
-  type: ClusterIP
+  type: LoadBalancer
 
   selector:
     app: backend
